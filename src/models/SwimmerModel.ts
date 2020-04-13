@@ -1,10 +1,12 @@
 import { Model, model, Schema, Document } from 'mongoose';
+import { Interface } from 'readline';
 
 export interface ISwimmerModel extends Document{
     firstName: string,
     lastName: string,
     sex: string,
     team: string,
+    elo: number,
     events: Array<any>
 }
 
@@ -13,6 +15,7 @@ export const SwimmerSchema: Schema = new Schema({
     lastName: String,
     sex: String,
     team: String,
+    elo: Number,
     events: [{
         type: Schema.Types.ObjectId,
         ref: 'Events'

@@ -1,6 +1,10 @@
 const axios = require("axios");
 const cheerio = require("cheerio");
 const cheerioTableparser = require('cheerio-tableparser');
+require('dotenv').config();
+import { SwimmerModel, SwimmerSchema } from "../models/SwimmerModel";
+import * as mongoose from "mongoose";
+import { EventModel } from "../models/EventModel";
 
 
 // Scrapes swimrankings.net website for the given swimmer to update their times, scores, etc.
@@ -39,8 +43,35 @@ async function getTimes(swimmer_id) {
 }
 
 async function getAllTimes() {
-    // TODO: implement this to get the times for all swimmers
+    console.log("Started Updating Times...");
+    let swimmers = await SwimmerModel.find({});
+    for (let s of swimmers) {
+        console.log(s.firstName);
+        let swimmer_id = s._id;
+        let swimmer_info = await getTimes(s["swimRankingId"]);
+        console.log(swimmer_info != {});
+        for (let event in swimmer_info) {
+            let new_time = swimmer_info[event]["time"];
+            let new_score = swimmer_info[event]["score"];
+            await EventModel.findOneAndUpdate({swimmerID: swimmer_id, eventName: event}, {$set: {time: new_time, score: new_score}}, function(err, doc) {
+                if (err) {
+                    console.error(err);
+                }
+            });
+        }
+    }
+    console.log("Done Updating Times");
 }
-let time_data = getTimes(4772537).then(function(obj) {
-    console.log(obj);
-});
+getAllTimes();
+
+mongoose.set('useNewUrlParser', true);
+mongoose.set('useFindAndModify', false);
+mongoose.set('useCreateIndex', true);
+mongoose.set('useUnifiedTopology', true);
+
+
+mongoose.connect(process.env.DBCONNECTION, {autoIndex: false}).then(() => {
+  console.log("DB Connected");
+}).catch((error) => {
+  console.error(error);
+})

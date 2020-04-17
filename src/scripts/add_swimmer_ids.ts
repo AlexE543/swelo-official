@@ -48,7 +48,7 @@ let people_ids = {
     "Sarah Gibson": 4812934,
     "Charlotte Bonnet": 4165495,
     "Larissa Oliveira": 5206851,
-    "Alba Vasquez": 4614434,
+    "Alba Vazquez": 4614434,
     "Ilaria Bianchi": 4093728,
     "Michael Andrew": 4514190,
     "Marco Koch": 4091347,
@@ -58,7 +58,11 @@ let people_ids = {
     "Leah Smith": 4469403,
     "Alex Graham": 4342574,
     "Matt Wilson": 4839844,
-    "Jess Hansen": 4342414
+    "Jess Hansen": 4342414,
+    "Radoslaw Kawecki": 4072374,
+    "Nic Fink": 4470524,
+    "Sarah Sjostrom": 4454367,
+
 }
 
 // Scrapes swimrankings.net to get the given athletes, swimranking ID
@@ -117,7 +121,7 @@ mongoose.set('useUnifiedTopology', true);
 
 mongoose.connect(process.env.DBCONNECTION, {autoIndex: false}).then(() => {
   console.log("DB Connected");
-//   addIds();
+  addIds();
 }).catch((error) => {
   console.error(error);
 })

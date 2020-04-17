@@ -1,7 +1,6 @@
 import { SwimmerModel } from "../models/SwimmerModel";
 import { EventModel } from "../models/EventModel";
 import * as mongoose from "mongoose";
-
 require('dotenv').config();
 
 let individual_event_list = ["50m Freestyle", "100m Freestyle", "200m Freestyle", "400m Freestyle", "50m Backstroke",
@@ -10,11 +9,18 @@ let individual_event_list = ["50m Freestyle", "100m Freestyle", "200m Freestyle"
 
 // Sets all swimmers base elo at 550
 async function addBaseElos() {
-  await SwimmerModel.updateMany({}, {$set: {elo: 550}});
+  console.log("Adding base elos...");
+  await SwimmerModel.updateMany({}, {$set: {elo: 550}}, function(err, doc) {
+    if (err) {
+      console.error(err);
+    }
+  });
+  console.log("Done adding base elos");
 }
 
 // Gets all the swimmers top three events and returns a dictionary (eventName: [events]) and a list of the third ranked events for each swimmmer
 async function getTopThreeEvents(individual_event_list) {
+  console.log("Getting top 3 events");
   let top_3 = {};
   let third_events = [];
   for(let e of individual_event_list) {
@@ -22,34 +28,47 @@ async function getTopThreeEvents(individual_event_list) {
   }
   let swimmers = await SwimmerModel.find({});
   for(let swimmer of swimmers) {
-    let events = await EventModel.find({swimmerID: swimmer._id}).sort({score: -1}).limit(3);
+    let events = await EventModel.find({swimmerID: swimmer._id}).sort({score: -1});
+    let num_added = 0;
     for(let event of events) {
-      await top_3[event.eventName].push(event);
-      if(events.indexOf(event)==2) {
-        third_events.push(event);
+      if (individual_event_list.includes(event.eventName)) {
+        await top_3[event.eventName].push(event);
+        num_added += 1;
+        if (num_added == 3) {
+          third_events.push(event);
+          break;
+        }
       }
     }
   }
+  console.log("Done getting top 3 event info");
   return [top_3, third_events]
 }
 
 // Calls addBaseElo to set the base elo at the base 550 value then updates it based off our algorithm
 // Does this for every swimmer and every event of their top 3
 async function updateBaseElos() {
+  console.log("Starting to update base elos...");
   await addBaseElos()
-  let top_3 = await getTopThreeEvents(individual_event_list)[0];
-  let third_events = await getTopThreeEvents(individual_event_list)[1];
-  
-  for(let event of Object.keys(top_3)) {
-    for(let i=0;i<top_3[event].length;i++) {
-      let update_amount = (length - 1 -i)*(200/top_3[event].length - 1);
-      if(third_events.indexOf(top_3[event][i]) != -1) {
+  let data = await getTopThreeEvents(individual_event_list);
+  let top_3 = data[0];
+  let third_events = data[1];
+  for(let event in top_3) {
+    let i = 0;
+    let length = Object.keys(top_3[event]).length;
+    let sorted_events = await top_3[event].sort(function(a, b) {
+      return b.score - a.score;
+    });
+    for(let e of sorted_events) {
+      let update_amount = Math.round((length - 1 -i)*(200/(length - 1)));
+      if(Object(third_events).indexOf(e) != -1) {
         update_amount *= .75;
       }
-      await SwimmerModel.findOneAndUpdate({_id: top_3[event][i].swimmerID}, {$inc: {elo: update_amount}});
+      i += 1;
+      await SwimmerModel.findOneAndUpdate({_id: e.swimmerID}, {$inc: {elo: update_amount}});
     }
   }
-
+  console.log("Finished updating base elos");
 }
 
 updateBaseElos() // Initial setup for large groups of swimmers (updated all swimmers in the database)

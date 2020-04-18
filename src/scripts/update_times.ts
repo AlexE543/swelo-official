@@ -32,8 +32,8 @@ async function getTimes(swimmer_id) {
                 time_data[events[i]] = {}
                 time_data[events[i]]["time"] = times[i];
                 time_data[events[i]]["course"] = courses[i];
-                time_data[events[i]]["score"] = scores[i];
-                time_data[events[i]]["swimmerId"] = swimmer_id;
+                time_data[events[i]]["score"] = Number(scores[i]);
+                time_data[events[i]]["swimmerId"] = String(swimmer_id);
             }
         }
         return time_data

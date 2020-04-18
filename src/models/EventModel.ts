@@ -5,6 +5,7 @@ export interface IEventModel extends Document{
     time: string,
     course: string,
     score: number,
+    sex: string,
     swimmerID: Schema.Types.ObjectId
 
 }
@@ -14,6 +15,7 @@ export const EventSchema: Schema = new Schema({
     time: String,
     course: String,
     score: Number,
+    sex: String,
     swimmerID: Schema.Types.ObjectId
 })
 

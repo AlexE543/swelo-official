@@ -18,8 +18,25 @@ async function addBaseElos() {
   console.log("Done adding base elos");
 }
 
+// Adds genders to all the events in the database
+async function addGenders() {
+  let swimmers = await SwimmerModel.find({});
+  for (let swimmer of swimmers) {
+    let gender = await swimmer.sex;
+    for (let event_id of swimmer.events) {
+      await EventModel.findByIdAndUpdate(event_id, {$set: {sex: gender}}, function(err, doc) {
+        if (err) {
+          console.log(err);
+        }
+        console.log(doc);
+      })
+    }
+  }
+}
+
+
 // Gets all the swimmers top three events and returns a dictionary (eventName: [events]) and a list of the third ranked events for each swimmmer
-async function getTopThreeEvents(individual_event_list) {
+async function getTopThreeEvents(individual_event_list, gender) {
   console.log("Getting top 3 events");
   let top_3 = {};
   let third_events = [];
@@ -28,7 +45,7 @@ async function getTopThreeEvents(individual_event_list) {
   }
   let swimmers = await SwimmerModel.find({});
   for(let swimmer of swimmers) {
-    let events = await EventModel.find({swimmerID: swimmer._id}).sort({score: -1});
+    let events = await EventModel.find({swimmerID: swimmer._id, sex: gender}).sort({score: -1});
     let num_added = 0;
     for(let event of events) {
       if (individual_event_list.includes(event.eventName)) {
@@ -46,11 +63,10 @@ async function getTopThreeEvents(individual_event_list) {
 }
 
 // Calls addBaseElo to set the base elo at the base 550 value then updates it based off our algorithm
-// Does this for every swimmer and every event of their top 3
-async function updateBaseElos() {
+// Does this for every swimmer and every event of their top 3 for the given gender
+async function updateBaseElos(gender) {
   console.log("Starting to update base elos...");
-  await addBaseElos()
-  let data = await getTopThreeEvents(individual_event_list);
+  let data = await getTopThreeEvents(individual_event_list, gender);
   let top_3 = data[0];
   let third_events = data[1];
   for(let event in top_3) {
@@ -71,8 +87,8 @@ async function updateBaseElos() {
   console.log("Finished updating base elos");
 }
 
-updateBaseElos() // Initial setup for large groups of swimmers (updated all swimmers in the database)
-
+updateBaseElos("F") // Initial setup for large groups of swimmers (updated all swimmers in the database)
+// addGenders();
 
 mongoose.set('useNewUrlParser', true);
 mongoose.set('useFindAndModify', false);

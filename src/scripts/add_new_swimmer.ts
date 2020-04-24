@@ -90,7 +90,8 @@ async function addSwimmer(first_name, last_name, gender=null, team=null) {
         team: team,
         swimRankingId: swimRanking,
         elo: 550,
-        events: []
+        events: [],
+        nicknames: []
     };
     await SwimmerModel.create(swimmer); // Add the swimmer to the database
     let s = await SwimmerModel.find({firstName: first_name, lastName: last_name}); // Find that same swimmer so we can get its id
@@ -183,7 +184,7 @@ async function updateElo(swimmer_id, gender) {
 
 
 // updateElo("5e9a725c76c4542524c2e3fd", "M");
-addSwimmer("Alex", "Ellison", "F", "MIT");
+// addSwimmer("Alex", "Ellison", "F", "MIT");
 
 mongoose.set('useNewUrlParser', true);
 mongoose.set('useFindAndModify', false);

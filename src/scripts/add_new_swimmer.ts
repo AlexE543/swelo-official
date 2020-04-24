@@ -5,8 +5,8 @@ require('dotenv').config();
 import { SwimmerModel, SwimmerSchema } from "../models/SwimmerModel";
 import * as mongoose from "mongoose";
 import { EventModel } from "../models/EventModel";
-import { getNameOfDeclaration } from "typescript";
 
+// Gets the swimmer id from swimrankings.net and returns it
 async function getSwimmerID(first_name, last_name) {
     let url = 'https://www.swimrankings.net/index.php';
     let params = {
@@ -28,6 +28,7 @@ async function getSwimmerID(first_name, last_name) {
     }
 }
 
+// gets the times, scores, etc. from swimranking.net and returns them
 async function getSwimmmerTimes(swimmer_id) {
     let url = 'https://www.swimrankings.net/index.php?';
     let params = {
@@ -182,7 +183,7 @@ async function updateElo(swimmer_id, gender) {
 
 
 // updateElo("5e9a725c76c4542524c2e3fd", "M");
-// addSwimmer("Michael", "Phelps", "M", "Test");
+addSwimmer("Alex", "Ellison", "F", "MIT");
 
 mongoose.set('useNewUrlParser', true);
 mongoose.set('useFindAndModify', false);

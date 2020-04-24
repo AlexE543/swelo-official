@@ -8,7 +8,8 @@ export interface ISwimmerModel extends Document{
     team: string,
     swimRankingId: string,
     elo: number,
-    events: Array<any>
+    events: Array<any>,
+    nicknames: Array<any>
 }
 
 export const SwimmerSchema: Schema = new Schema({
@@ -21,6 +22,9 @@ export const SwimmerSchema: Schema = new Schema({
     events: [{
         type: Schema.Types.ObjectId,
         ref: 'Events'
+    }],
+    nicknames: [{
+        type: String
     }]
 })
 

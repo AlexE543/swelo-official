@@ -25,6 +25,7 @@ async function getSwimmerID(first_name, last_name) {
     } catch {
         console.log("Swimmer Name: ", first_name, " ", last_name);
         console.log("Error, please manually find swimmer ID");
+        return null;
     }
 }
 
@@ -80,34 +81,39 @@ async function addEvents(data, mongo_id, gender) {
 }
 
 // Add a swimmer to the system
-async function addSwimmer(first_name, last_name, gender=null, team=null) {
+export async function addSwimmer(first_name, last_name, gender=null, team=null) {
     console.log("Adding Swimmer...");
     let swimRanking = await getSwimmerID(first_name, last_name); // Get swim ranking id
-    let swimmer = {         // Build the Swimmer with the info we have
-        firstName: first_name,
-        lastName: last_name,
-        sex: gender,
-        team: team,
-        swimRankingId: swimRanking,
-        elo: 550,
-        events: [],
-        nicknames: []
-    };
-    await SwimmerModel.create(swimmer); // Add the swimmer to the database
-    let s = await SwimmerModel.find({firstName: first_name, lastName: last_name}); // Find that same swimmer so we can get its id
-    let id = s[0]._id;
-    let data = await getSwimmmerTimes(swimRanking);
-    // Add Events to the database
-    await addEvents(data, id, gender);
-    let events_to_add = await EventModel.find({swimmerID: id});
-    await SwimmerModel.findByIdAndUpdate(id, {$set: {events: events_to_add}}, {upsert: false}, function(err, doc) {
-        if (err) {
-            console.error(err);
-        }
-    });
-    console.log("About to update Elo");
-    await updateElo(id, gender);
-    console.log("Added Swimmer!");
+    if (swimRanking == null) {
+        return;
+    }
+    else {
+        let swimmer = {         // Build the Swimmer with the info we have
+            firstName: first_name,
+            lastName: last_name,
+            sex: gender,
+            team: team,
+            swimRankingId: swimRanking,
+            elo: 550,
+            events: [],
+            nicknames: []
+        };
+        await SwimmerModel.create(swimmer); // Add the swimmer to the database
+        let s = await SwimmerModel.find({firstName: first_name, lastName: last_name}); // Find that same swimmer so we can get its id
+        let id = s[0]._id;
+        let data = await getSwimmmerTimes(swimRanking);
+        // Add Events to the database
+        await addEvents(data, id, gender);
+        let events_to_add = await EventModel.find({swimmerID: id});
+        await SwimmerModel.findByIdAndUpdate(id, {$set: {events: events_to_add}}, {upsert: false}, function(err, doc) {
+            if (err) {
+                console.error(err);
+            }
+        });
+        console.log("About to update Elo");
+        await updateElo(id, gender);
+        console.log("Added Swimmer!");
+    }
 }
 
 

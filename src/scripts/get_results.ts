@@ -1,5 +1,4 @@
 import { SwimmerModel } from "../models/SwimmerModel";
-import { EventModel } from "../models/EventModel";
 import * as mongoose from "mongoose";
 require('dotenv').config();
 
@@ -7,6 +6,7 @@ var path = require('path');
 var filePath = path.join('./isl_vegas_day_1_results.pdf');
 // var filePath = path.join('./las-vegas-day-2-isl-results.pdf');
 
+// Order: getResults => addToLIst => updateElos => getUpdate => getSwimmerElos()
 
 // Hard approach of parsing the pdf
 var pdfreader = require("pdfreader");
@@ -80,7 +80,6 @@ async function getResults() {
     stream();
 }
 
-
 async function updateElos(names, ranks) {
     let name_to_id = await getNicknameToId();
     let event = [];
@@ -102,6 +101,7 @@ async function preventNameErrors(first_name, last_name, name_to_id) {
 
 // Gets the swimmers elos for each swimmer in the event
 async function getSwimmerElos(swimmers, name_to_id) {
+    let elo_list = [];
     for (let athlete of swimmers) {
         let athlete_name = athlete[0].split(" ");
         let half = Math.ceil(athlete_name.length/2);
@@ -111,11 +111,43 @@ async function getSwimmerElos(swimmers, name_to_id) {
             console.log(athlete_name);
             console.log("DNE");
         } else {
-            // console.log(swimmer.elo);
+            elo_list.push(swimmer.elo);
         }
     }
-    return []
+    return elo_list;
 }
+
+
+async function createProbabilities(event_matchup, swimmer_elos) {
+    let probability_list = []
+    let num_swimmers = swimmer_elos.length
+    for (let i = 0; i < num_swimmers; i++) {
+        let sum = await event_matchup[i].reduce(function(a, b){
+            return a + b;
+        }, 0);
+
+        let prob = 1 / (1 + 10**((sum - (num_swimmers - 1)*swimmer_elos[i])/ 400));
+        probability_list.push(prob);
+    }
+    return probability_list;
+}
+
+async function getUpdatedElo(swimmer_elos, probability_list, num_swimmers) {
+    let k = 20/num_swimmers;
+    let updated_elos = [];
+    for (let i = 0; i<num_swimmers; i++) {
+        let num_lost_to = 0;
+        for (let j = 0; j < num_swimmers; j++) {
+            if (j<i) {
+                num_lost_to += 1;
+            }
+        }
+        let update = swimmer_elos[i] + ((num_swimmers - 1 - num_lost_to)*(k)*(1 - probability_list[i])) +((num_lost_to)*(k)*(0 - probability_list[i]))
+        updated_elos.push(update);
+    }
+    return updated_elos;
+}
+
 
 async function getUpdate(event, name_to_id) {
     let elo_list = []
@@ -128,7 +160,12 @@ async function getUpdate(event, name_to_id) {
         matchup_elos.splice(i, 1);
         elo_list.push(matchup_elos);
     }
-
+    let prob_list = await createProbabilities(elo_list, swimmer_elos);
+    let updated_elos = await getUpdatedElo(swimmer_elos, prob_list, swimmer_elos.length);
+    console.log("Old Elos: ", swimmer_elos);
+    console.log("Updated Elos: ", updated_elos);
+    console.log(" ");
+    // TODO: Add these updated elos to the database. May need to just get the difference and add or subtract
     return;
 }
 getResults();

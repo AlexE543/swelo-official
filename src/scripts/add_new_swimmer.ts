@@ -116,7 +116,6 @@ export async function addSwimmer(first_name, last_name, gender=null, team=null) 
     }
 }
 
-
 let individual_event_list = ["50m Freestyle", "100m Freestyle", "200m Freestyle", "400m Freestyle", "50m Backstroke",
   "100m Backstroke", "200m Backstroke", "50m Breaststroke", "100m Breaststroke", "200m Breaststroke",
   "50m Butterfly", "100m Butterfly", "200m Butterfly", "200m Medley", "400m Medley"];
@@ -190,7 +189,10 @@ async function updateElo(swimmer_id, gender) {
 
 
 // updateElo("5e9a725c76c4542524c2e3fd", "M");
-// addSwimmer("Alex", "Ellison", "F", "MIT");
+// addSwimmer("Jocelyn", "Ulyett", "F", "Energy Standard");
+// addSwimmer("Bailey", "Andison", "F", "LA Current");
+addSwimmer("Caeleb", "Dressel", "M", "Cali Condors");
+
 
 mongoose.set('useNewUrlParser', true);
 mongoose.set('useFindAndModify', false);

@@ -76,7 +76,7 @@ async function updateBaseElos(gender) {
       return b.score - a.score;
     });
     for(let e of sorted_events) {
-      let update_amount = Math.round((length - 1 -i)*(200/(length - 1)));
+      let update_amount = Math.round((length - 1 -i)*(100/(length - 1)));
       if(Object(third_events).indexOf(e) != -1) {
         update_amount *= .75;
       }
@@ -85,9 +85,14 @@ async function updateBaseElos(gender) {
     }
   }
   console.log("Finished updating base elos");
+  return "Done";
 }
-
-updateBaseElos("F") // Initial setup for large groups of swimmers (updated all swimmers in the database)
+// addBaseElos();
+let genders = ["M", "F"];
+for (let x of genders) {
+  updateBaseElos(x);
+}
+// updateBaseElos("M") // Initial setup for large groups of swimmers (updated all swimmers in the database)
 // addGenders();
 
 mongoose.set('useNewUrlParser', true);

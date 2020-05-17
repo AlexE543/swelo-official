@@ -1,0 +1,11 @@
+.DS_Store
+.deployment
+.env
+.git/
+.template-env
+.idea/
+bin/
+gulp_tasks/
+gulp_templates/
+node_modules/
+src

@@ -1,5 +1,4 @@
 import { Model, model, Schema, Document } from 'mongoose';
-import { Interface } from 'readline';
 
 export interface ISwimmerModel extends Document{
     firstName: string,

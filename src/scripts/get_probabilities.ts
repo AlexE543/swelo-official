@@ -15,10 +15,10 @@ async function getWinOdds(event) {
         let pos = elo_to_place[swimmer_elos[k]];
         prob_list[pos-1] = sorted_prob_list[k]
     }
-    console.log("Event: ", event);
-    console.log("Probs: ", prob_list);
+    // console.log("Event: ", event);
+    // console.log("Probs: ", prob_list);
     let odds_list = await prob_to_odds(prob_list);
-    console.log("Odds: ", odds_list);
+    // console.log("Odds: ", odds_list);
     return odds_list;
 }
 
@@ -92,17 +92,19 @@ async function prob_to_odds(prob_list) {
 }
 
 
-let e = [["Dressel Caeleb", 1], ["Shields Tom", 2], ["Switkowski Jan", 3], ["Conger Jack", 4], ["Le Clos Chad", 5], ["Lanza Vini", 6], ["Zirk Kregor", 7], ["Guy James", 8]]
-getWinOdds(e);
+// let e = [["Dressel Caeleb", 1], ["Shields Tom", 2], ["Switkowski Jan", 3], ["Conger Jack", 4], ["Le Clos Chad", 5], ["Lanza Vini", 6], ["Zirk Kregor", 7], ["Guy James", 8]]
+// getWinOdds(e);
 
-mongoose.set('useNewUrlParser', true);
-mongoose.set('useFindAndModify', false);
-mongoose.set('useCreateIndex', true);
-mongoose.set('useUnifiedTopology', true);
+// mongoose.set('useNewUrlParser', true);
+// mongoose.set('useFindAndModify', false);
+// mongoose.set('useCreateIndex', true);
+// mongoose.set('useUnifiedTopology', true);
 
 
-mongoose.connect(process.env.DBCONNECTION, {autoIndex: false}).then(() => {
-  console.log("DB Connected");
-}).catch((error) => {
-  console.error(error);
-})
+// mongoose.connect(process.env.DBCONNECTION, {autoIndex: false}).then(() => {
+//   console.log("DB Connected");
+// }).catch((error) => {
+//   console.error(error);
+// })
+
+export default getWinOdds;
